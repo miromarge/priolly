@@ -1585,14 +1585,14 @@ function renderLoginPage(app) {
                 margin-bottom: 16px;
             }
             .hero-title {
-                font-size: clamp(32px, 5vw, 56px);
+                font-size: clamp(28px, 4.2vw, 56px);
                 font-weight: 700;
                 color: #1a1a2e;
-                line-height: 1.1;
+                line-height: 1.15;
                 margin-bottom: 12px;
                 letter-spacing: -0.02em;
-                white-space: nowrap;
                 text-align: center;
+                max-width: 100%;
             }
             .hero-subtitle {
                 font-size: 18px;
