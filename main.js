@@ -1,5 +1,5 @@
 // Frontend Configuration
-const GOOGLE_CLIENT_ID = "967719524102-hoemnlkvuc47kldd4sa9pgjpi7r1eh3c.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "84447400360-so3818q0e7pjgks3tlmin5gmr1dhhc5a.apps.googleusercontent.com";
 // TODO: после деплоя backend на Render (или другой хостинг) замените этот URL на свой,
 // например "https://mail-ai-backend.onrender.com/api"
 const API_BASE_URL = "https://priolly.onrender.com/api"; // Backend URL
