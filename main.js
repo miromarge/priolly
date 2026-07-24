@@ -1,6 +1,17 @@
 // Frontend Configuration
-const GOOGLE_CLIENT_ID = "84447400360-so3818q0e7pjgks3tlmin5gmr1dhhc5a.apps.googleusercontent.com";
-const API_BASE_URL = "https://priolly.onrender.com"; // Backend URL
+const GOOGLE_CLIENT_ID = "967719524102-hoemnlkvuc47kldd4sa9pgjpi7r1eh3c.apps.googleusercontent.com";
+// TODO: после деплоя backend на Render (или другой хостинг) замените этот URL на свой,
+// например "https://mail-ai-backend.onrender.com/api"
+const API_BASE_URL = "https://priolly.onrender.com/api"; // Backend URL
+// Необязательно: если на backend задана переменная окружения APP_SECRET,
+// впишите сюда то же самое значение — это простая защита от чужих запросов
+// на ваш Groq-ключ (см. server.js). Оставьте пустым, если защита не нужна.
+const APP_SECRET = "";
+function apiHeaders() {
+    return APP_SECRET
+        ? { 'Content-Type': 'application/json', 'x-app-secret': APP_SECRET }
+        : { 'Content-Type': 'application/json' };
+}
 
 let searchTimeout = null;
 
@@ -883,7 +894,7 @@ async function classifyEmail(text, emailId = null) {
     try {
         const response = await fetch(`${API_BASE_URL}/classify`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: apiHeaders(),
             body: JSON.stringify({ text, language: state.language, emailId })
         });
         
@@ -1329,6 +1340,7 @@ function renderLoginPage(app) {
             pricing: 'Pricing',
             contact: 'Contact',
             signIn: 'Sign In',
+            audienceTag: 'Built for small businesses & solo entrepreneurs',
             heroTitle: 'Effortless Email for Growing Teams.',
             heroSubtitle: 'Our AI instantly organizes your inbox, highlights urgent tasks, and drafts responses, so you can focus on what matters.',
             tryFree: 'Try Priolly Free',
@@ -1359,10 +1371,11 @@ function renderLoginPage(app) {
             proFeature5: 'Priority support',
             proCta: 'Subscribe',
             freeBannerText: 'CURRENTLY FREE',
+            founderNote: "As I'm currently 17, official business registration is legally on hold for now. Anyway, I'd appreciate any feedback on how the service could be improved. Thank you.",
             contactTitle: 'Contact Us',
             contactDesc: 'Have questions? We\'d love to hear from you.',
             contactEmail: 'Email',
-            contactEmailValue: 'support@priolly.com',
+            contactEmailValue: 'miromarg7@gmail.com',
             contactPhone: 'Phone',
             contactPhoneValue: '+1 (555) 123-4567',
             contactAddress: 'Address',
@@ -1373,6 +1386,7 @@ function renderLoginPage(app) {
             pricing: 'Цены',
             contact: 'Контакты',
             signIn: 'Войти',
+            audienceTag: 'Для малого бизнеса и ИП',
             heroTitle: 'Простая почта для растущих команд.',
             heroSubtitle: 'Наш ИИ мгновенно организует вашу почту, выделяет срочные задачи и создаёт черновики ответов, чтобы вы могли сосредоточиться на важном.',
             tryFree: 'Попробовать бесплатно',
@@ -1403,10 +1417,11 @@ function renderLoginPage(app) {
             proFeature5: 'Приоритетная поддержка',
             proCta: 'Подписаться',
             freeBannerText: 'СЕЙЧАС БЕСПЛАТНО',
+            founderNote: 'Мне сейчас 17 лет, поэтому официальная регистрация бизнеса пока недоступна по закону. Буду рад любой обратной связи о том, как улучшить сервис. Спасибо!',
             contactTitle: 'Контакты',
             contactDesc: 'Есть вопросы? Мы будем рады помочь.',
             contactEmail: 'Email',
-            contactEmailValue: 'support@priolly.com',
+            contactEmailValue: 'miromarg7@gmail.com',
             contactPhone: 'Телефон',
             contactPhoneValue: '+1 (555) 123-4567',
             contactAddress: 'Адрес',
@@ -1417,6 +1432,7 @@ function renderLoginPage(app) {
             pricing: 'Cennik',
             contact: 'Kontakt',
             signIn: 'Zaloguj',
+            audienceTag: 'Dla małych firm i JDG',
             heroTitle: 'Efektywny Email dla Rosnących Zespołów.',
             heroSubtitle: 'Nasza AI natychmiast organizuje skrzynkę, wyróżnia pilne zadania i przygotowuje odpowiedzi, abyś mógł skupić się na tym, co ważne.',
             tryFree: 'Wypróbuj za darmo',
@@ -1447,10 +1463,11 @@ function renderLoginPage(app) {
             proFeature5: 'Priorytetowe wsparcie',
             proCta: 'Subskrybuj',
             freeBannerText: 'TERAZ BEZPŁATNIE',
+            founderNote: 'Obecnie mam 17 lat, więc oficjalna rejestracja działalności gospodarczej jest na razie prawnie niemożliwa. Będę wdzięczny za każdą opinię na temat tego, jak można ulepszyć serwis. Dziękuję!',
             contactTitle: 'Kontakt',
             contactDesc: 'Masz pytania? Chętnie pomożemy.',
             contactEmail: 'Email',
-            contactEmailValue: 'support@priolly.com',
+            contactEmailValue: 'miromarg7@gmail.com',
             contactPhone: 'Telefon',
             contactPhoneValue: '+1 (555) 123-4567',
             contactAddress: 'Adres',
@@ -1554,6 +1571,18 @@ function renderLoginPage(app) {
                 margin: 0 auto;
                 position: relative;
                 z-index: 1;
+            }
+            .hero-badge {
+                display: inline-block;
+                padding: 6px 16px;
+                background: rgba(79, 70, 229, 0.08);
+                color: #4f46e5;
+                border: 1px solid rgba(79, 70, 229, 0.2);
+                border-radius: 999px;
+                font-size: 13px;
+                font-weight: 600;
+                letter-spacing: 0.01em;
+                margin-bottom: 16px;
             }
             .hero-title {
                 font-size: clamp(32px, 5vw, 56px);
@@ -2005,7 +2034,7 @@ function renderLoginPage(app) {
             }
             .pricing-ribbon-badge-text {
                 color: #ffffff;
-                font-size: 12.5px;
+                font-size: 16px;
                 line-height: 1.55;
                 font-weight: 400;
                 text-align: center;
@@ -2103,6 +2132,7 @@ function renderLoginPage(app) {
             
             <!-- Hero Section -->
             <section class="hero-section">
+                <span class="hero-badge">${lt.audienceTag}</span>
                 <h1 class="hero-title">${lt.heroTitle}</h1>
                 <p class="hero-subtitle">${lt.heroSubtitle}</p>
             </section>
@@ -2219,8 +2249,7 @@ function renderLoginPage(app) {
                 <div class="pricing-ribbon pricing-ribbon-1"><span>${Array(6).fill(lt.freeBannerText).join('   •   ')}</span></div>
                 <div class="pricing-ribbon pricing-ribbon-2"><span>${Array(6).fill(lt.freeBannerText).join('   •   ')}</span></div>
                 <div class="pricing-ribbon-badge">
-                    <img class="pricing-ribbon-badge-photo" src="photo.jpg" alt="">
-                    <span class="pricing-ribbon-badge-text">As I'm currently 17, official business registration is legally on hold for now. Therefore, the service is completely free to use during this period.</span>
+                    <span class="pricing-ribbon-badge-text">${lt.founderNote}</span>
                 </div>
                 </div>
             </section>
@@ -2782,7 +2811,7 @@ async function showSummary(emailId) {
         
         const response = await fetch(`${API_BASE_URL}/summary`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: apiHeaders(),
             body: JSON.stringify({
                 snippet: email.snippet || email.subject,
                 subject: email.subject,
