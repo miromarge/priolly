@@ -5,17 +5,17 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ============================================
 // ВСТАВЬ СЮДА СВОЙ GROQ API КЛЮЧ
 // Получи на: https://console.groq.com/keys
 // ============================================
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 // Проверка ключа
-if (GROQ_API_KEY === "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") {
-    console.log("\n⚠️  ВНИМАНИЕ: Вставь свой Groq API ключ в server.js!\n");
+if (!GROQ_API_KEY) {
+    console.log("\n⚠️  ВНИМАНИЕ: Переменная окружения GROQ_API_KEY не задана!\n");
 }
 
 // === CACHE ===
@@ -281,7 +281,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
