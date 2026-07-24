@@ -2116,7 +2116,7 @@ function renderLoginPage(app) {
             <!-- Navigation -->
             <nav class="landing-nav">
                 <div class="landing-logo">
-                    <img src="/priolly.png" alt="Priolly" style="height: 40px; width: auto;" />
+                    <img src="priolly.png" alt="Priolly" style="height: 40px; width: auto;" />
                 </div>
                 <div class="nav-links">
                     <a href="javascript:void(0)" onclick="smoothScrollTo('pricing')" class="nav-link">${lt.pricing}</a>
@@ -2141,7 +2141,7 @@ function renderLoginPage(app) {
             <div class="app-preview">
                 <div class="preview-images-container" style="display: flex; gap: 24px; justify-content: center; align-items: flex-start; flex-wrap: wrap; background: transparent; padding-left: 40px;">
                     <div class="preview-image-wrapper" style="flex: 1; max-width: 900px; min-width: 300px; background: transparent;">
-                        <img src="/inbox.png" alt="Inbox Preview" style="width: 100%; border-radius: 16px; background: transparent;" />
+                        <img src="inbox.png" alt="Inbox Preview" style="width: 100%; border-radius: 16px; background: transparent;" />
                     </div>
                 </div>
             </div>
@@ -2150,7 +2150,7 @@ function renderLoginPage(app) {
             <section class="features-section" id="features">
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <img src="/sort.png" alt="Sort" />
+                        <img src="sort.png" alt="Sort" />
                     </div>
                     <div class="feature-content">
                         <h3>${lt.feature1Title}</h3>
@@ -2159,7 +2159,7 @@ function renderLoginPage(app) {
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <img src="/urgency.png" alt="Urgency" />
+                        <img src="urgency.png" alt="Urgency" />
                     </div>
                     <div class="feature-content">
                         <h3>${lt.feature2Title}</h3>
@@ -2168,7 +2168,7 @@ function renderLoginPage(app) {
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <img src="/summary.png" alt="Summary" />
+                        <img src="summary.png" alt="Summary" />
                     </div>
                     <div class="feature-content">
                         <h3>${lt.feature3Title}</h3>
@@ -2364,7 +2364,7 @@ function renderHeader() {
             <div class="max-w-7xl mx-auto px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                            <img src="/priolly.png" alt="Priolly" class="h-10 w-auto object-contain" />
+                            <img src="priolly.png" alt="Priolly" class="h-10 w-auto object-contain" />
                             <h1 class="sr-only">${t('mailInsights')}</h1>
                     </div>
                     
