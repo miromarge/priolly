@@ -1,5 +1,5 @@
 // Frontend Configuration
-const GOOGLE_CLIENT_ID = "84447400360-5l0didghc1ahc6uf39sg7ebs7k9ku31p.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "84447400360-so3818q0e7pjgks3tlmin5gmr1dhhc5a.apps.googleusercontent.com";
 const API_BASE_URL = "https://priolly.onrender.com"; // Backend URL
 
 let searchTimeout = null;
