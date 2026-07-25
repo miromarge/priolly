@@ -68,6 +68,13 @@ const translations = {
         autoResponderConfirmText: "Вы уверены, что хотите включить автоматические ответы на все входящие письма (кроме спама)?",
         autoResponderYes: "Да, включить",
         autoResponderCancel: "Отмена",
+        betaModalTitle: "Доступ к бете",
+        betaModalDesc: "Приложение сейчас в бета-версии. Чтобы начать пользоваться, сначала отправьте свой email — я вручную добавлю вас в список тестировщиков, после этого сможете войти через Google.",
+        betaEmailPlaceholder: "you@example.com",
+        betaSubmitBtn: "Отправить",
+        betaWaitNote: "Обычно занимает пару часов, максимум — сутки.",
+        alreadySentQuestion: "Уже отправили email?",
+        tryFreeShort: "Войти",
         autoResponderSettings: "Настройка автоответчика",
         autoResponderTextLabel: "Текст автоматического ответа:",
         autoResponderPlaceholder: "Введите текст автоматического ответа...",
@@ -139,6 +146,13 @@ const translations = {
         autoResponderConfirmText: "Are you sure you want to enable automatic replies to all incoming emails (except spam)?",
         autoResponderYes: "Yes, enable",
         autoResponderCancel: "Cancel",
+        betaModalTitle: "Beta Access",
+        betaModalDesc: "This app is currently in beta. To use it, first send your email — I'll manually add you as an approved tester, then you can sign in with Google.",
+        betaEmailPlaceholder: "you@example.com",
+        betaSubmitBtn: "Send",
+        betaWaitNote: "Usually takes a couple of hours, up to 24h max.",
+        alreadySentQuestion: "Already sent your email?",
+        tryFreeShort: "Try Now",
         autoResponderSettings: "Auto-responder settings",
         autoResponderTextLabel: "Automatic reply text:",
         autoResponderPlaceholder: "Enter automatic reply text...",
@@ -210,6 +224,13 @@ const translations = {
         autoResponderConfirmText: "Czy na pewno chcesz włączyć automatyczne odpowiedzi na wszystkie przychodzące emaile (z wyjątkiem spamu)?",
         autoResponderYes: "Tak, włącz",
         autoResponderCancel: "Anuluj",
+        betaModalTitle: "Dostęp do bety",
+        betaModalDesc: "Aplikacja jest obecnie w wersji beta. Aby zacząć korzystać, najpierw wyślij swój email — dodam Cię ręcznie do listy testerów, potem będziesz mógł zalogować się przez Google.",
+        betaEmailPlaceholder: "you@example.com",
+        betaSubmitBtn: "Wyślij",
+        betaWaitNote: "Zwykle zajmuje to kilka godzin, maksymalnie do 24h.",
+        alreadySentQuestion: "Wysłałeś już email?",
+        tryFreeShort: "Wypróbuj teraz",
         autoResponderSettings: "Ustawienia autoodpowiedzi",
         autoResponderTextLabel: "Tekst automatycznej odpowiedzi:",
         autoResponderPlaceholder: "Wprowadź tekst automatycznej odpowiedzi...",
@@ -249,6 +270,7 @@ let state = {
     autoResponderEnabled: false,
     autoResponderText: 'Спасибо за ваше сообщение. Я получил ваше письмо и отвечу в ближайшее время.',
     showAutoResponderModal: false,
+    showBetaModal: false,
     showConfirmDialog: false,
     repliedEmails: {},
     hideReplied: false,
@@ -1200,6 +1222,36 @@ function closeAutoResponderModal() {
     render();
 }
 
+// Бета-доступ: сбор email перед добавлением в тестировщики
+function openBetaModal() {
+    state.showBetaModal = true;
+    render();
+}
+
+function closeBetaModal() {
+    const modals = document.querySelectorAll('.fixed.inset-0');
+    modals.forEach(modal => modal.remove());
+    state.showBetaModal = false;
+    render();
+}
+
+function submitBetaEmail() {
+    const input = document.getElementById('betaEmailInput');
+    const email = input ? input.value.trim() : '';
+    if (!email || !email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid email / Введите корректный email');
+        return;
+    }
+    const subject = encodeURIComponent('Mail AI Assistant — add me as tester');
+    const body = encodeURIComponent('Please add this email as a test user: ' + email);
+    window.location.href = `mailto:miromarg7@gmail.com?subject=${subject}&body=${body}`;
+}
+
+function alreadySentGoToLogin() {
+    closeBetaModal();
+    handleLogin();
+}
+
 // Функция автоматического ответа
 async function sendAutoReply(email) {
     const emailAddress = email.from.match(/<(.+?)>/)?.[1] || email.from;
@@ -1234,6 +1286,10 @@ window.cancelConfirm = cancelConfirm;
 window.setAutoResponderText = setAutoResponderText;
 window.saveAutoResponderSettings = saveAutoResponderSettings;
 window.closeAutoResponderModal = closeAutoResponderModal;
+window.openBetaModal = openBetaModal;
+window.closeBetaModal = closeBetaModal;
+window.submitBetaEmail = submitBetaEmail;
+window.alreadySentGoToLogin = alreadySentGoToLogin;
 window.markEmailAsReplied = markEmailAsReplied;
 window.undoEmailReplied = undoEmailReplied;
 window.toggleHideReplied = toggleHideReplied;
@@ -1332,6 +1388,43 @@ if (state.showAutoResponderModal) {
     `;
     document.body.appendChild(modal);
 }
+
+// Модальное окно бета-доступа (сбор email перед добавлением в тестировщики)
+if (state.showBetaModal) {
+    const betaModal = document.createElement('div');
+    betaModal.innerHTML = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-[450px] max-w-[90vw]">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${t('betaModalTitle')}</h2>
+                <p class="text-gray-600 mb-4 text-sm">${t('betaModalDesc')}</p>
+                <input
+                    id="betaEmailInput"
+                    type="email"
+                    placeholder="${t('betaEmailPlaceholder')}"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 text-gray-700"
+                />
+                <p class="text-xs text-gray-400 mb-4">${t('betaWaitNote')}</p>
+                <button
+                    onclick="submitBetaEmail()"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition mb-4"
+                >
+                    ${t('betaSubmitBtn')}
+                </button>
+                <div class="text-center border-t border-gray-100 pt-4">
+                    <p class="text-xs text-gray-400 mb-2">${t('alreadySentQuestion')}</p>
+                    <button
+                        onclick="alreadySentGoToLogin()"
+                        class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                        ${t('tryFreeShort')}
+                    </button>
+                </div>
+                <button onclick="closeBetaModal()" class="w-full text-center text-xs text-gray-400 mt-4 hover:text-gray-600">✕</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(betaModal);
+}
 }
 function renderLoginPage(app) {
     const landingTranslations = {
@@ -1344,6 +1437,7 @@ function renderLoginPage(app) {
             heroTitle: 'Effortless Email for Growing Teams.',
             heroSubtitle: 'Our AI instantly organizes your inbox, highlights urgent tasks, and drafts responses, so you can focus on what matters.',
             tryFree: 'Try Priolly Free',
+            betaCtaText: 'Get Beta Access',
             feature1Title: 'AI-Powered Sorting',
             feature1Desc: 'AI-Powered automatic sorting and powered filtering, with custom categories.',
             feature2Title: 'Urgency Detection',
@@ -1390,6 +1484,7 @@ function renderLoginPage(app) {
             heroTitle: 'Простая почта для растущих команд.',
             heroSubtitle: 'Наш ИИ мгновенно организует вашу почту, выделяет срочные задачи и создаёт черновики ответов, чтобы вы могли сосредоточиться на важном.',
             tryFree: 'Попробовать бесплатно',
+            betaCtaText: 'Получить доступ к бете',
             feature1Title: 'ИИ-сортировка',
             feature1Desc: 'Автоматическая сортировка и фильтрация с помощью ИИ с настраиваемыми категориями.',
             feature2Title: 'Определение срочности',
@@ -1436,6 +1531,7 @@ function renderLoginPage(app) {
             heroTitle: 'Efektywny Email dla Rosnących Zespołów.',
             heroSubtitle: 'Nasza AI natychmiast organizuje skrzynkę, wyróżnia pilne zadania i przygotowuje odpowiedzi, abyś mógł skupić się na tym, co ważne.',
             tryFree: 'Wypróbuj za darmo',
+            betaCtaText: 'Uzyskaj dostęp do bety',
             feature1Title: 'Sortowanie AI',
             feature1Desc: 'Automatyczne sortowanie i filtrowanie z niestandardowymi kategoriami.',
             feature2Title: 'Wykrywanie Pilności',
@@ -2179,15 +2275,21 @@ function renderLoginPage(app) {
             
             <!-- CTA -->
             <section class="cta-section">
-                <button class="cta-button" onclick="handleLogin()">
+                <button class="cta-button" onclick="openBetaModal()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    ${lt.tryFree}
+                    ${lt.betaCtaText}
                 </button>
+                <div style="margin-top: 14px;">
+                    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 4px;">${t('alreadySentQuestion')}</p>
+                    <button onclick="handleLogin()" style="font-size: 14px; color: #4f46e5; font-weight: 600; text-decoration: underline; background: none; border: none; cursor: pointer;">
+                        ${t('tryFreeShort')}
+                    </button>
+                </div>
             </section>
             
             <!-- Pricing -->
