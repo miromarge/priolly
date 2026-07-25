@@ -12,6 +12,10 @@ function apiHeaders() {
         ? { 'Content-Type': 'application/json', 'x-app-secret': APP_SECRET }
         : { 'Content-Type': 'application/json' };
 }
+// Ключ для формы бета-доступа (Web3Forms — бесплатно шлёт письмо на твой email,
+// без бэкенда). Получи свой на https://app.web3forms.com (подтверди email,
+// скопируй Access Key) и вставь сюда вместо placeholder.
+const WEB3FORMS_ACCESS_KEY = "74e402fb-1a81-4d18-b5cd-4fbc1ea7d4e8";
 
 let searchTimeout = null;
 
@@ -75,6 +79,9 @@ const translations = {
         betaWaitNote: "Обычно занимает пару часов, максимум — сутки.",
         alreadySentQuestion: "Уже отправили email?",
         tryFreeShort: "Войти",
+        betaSendingBtn: "Отправка...",
+        betaSuccessTitle: "Готово! Мы получили ваш email.",
+        betaErrorNote: "Что-то пошло не так. Попробуйте ещё раз.",
         autoResponderSettings: "Настройка автоответчика",
         autoResponderTextLabel: "Текст автоматического ответа:",
         autoResponderPlaceholder: "Введите текст автоматического ответа...",
@@ -153,6 +160,9 @@ const translations = {
         betaWaitNote: "Usually takes a couple of hours, up to 24h max.",
         alreadySentQuestion: "Already sent your email?",
         tryFreeShort: "Try Now",
+        betaSendingBtn: "Sending...",
+        betaSuccessTitle: "Done! We received your email.",
+        betaErrorNote: "Something went wrong. Please try again.",
         autoResponderSettings: "Auto-responder settings",
         autoResponderTextLabel: "Automatic reply text:",
         autoResponderPlaceholder: "Enter automatic reply text...",
@@ -231,6 +241,9 @@ const translations = {
         betaWaitNote: "Zwykle zajmuje to kilka godzin, maksymalnie do 24h.",
         alreadySentQuestion: "Wysłałeś już email?",
         tryFreeShort: "Wypróbuj teraz",
+        betaSendingBtn: "Wysyłanie...",
+        betaSuccessTitle: "Gotowe! Otrzymaliśmy Twój email.",
+        betaErrorNote: "Coś poszło nie tak. Spróbuj ponownie.",
         autoResponderSettings: "Ustawienia autoodpowiedzi",
         autoResponderTextLabel: "Tekst automatycznej odpowiedzi:",
         autoResponderPlaceholder: "Wprowadź tekst automatycznej odpowiedzi...",
@@ -271,6 +284,7 @@ let state = {
     autoResponderText: 'Спасибо за ваше сообщение. Я получил ваше письмо и отвечу в ближайшее время.',
     showAutoResponderModal: false,
     showBetaModal: false,
+    betaSubmitStatus: 'idle', // idle | sending | success | error
     showConfirmDialog: false,
     repliedEmails: {},
     hideReplied: false,
@@ -1225,6 +1239,7 @@ function closeAutoResponderModal() {
 // Бета-доступ: сбор email перед добавлением в тестировщики
 function openBetaModal() {
     state.showBetaModal = true;
+    state.betaSubmitStatus = 'idle';
     render();
 }
 
@@ -1232,19 +1247,40 @@ function closeBetaModal() {
     const modals = document.querySelectorAll('.fixed.inset-0');
     modals.forEach(modal => modal.remove());
     state.showBetaModal = false;
+    state.betaSubmitStatus = 'idle';
     render();
 }
 
-function submitBetaEmail() {
+async function submitBetaEmail() {
     const input = document.getElementById('betaEmailInput');
     const email = input ? input.value.trim() : '';
     if (!email || !email.includes('@') || !email.includes('.')) {
         alert('Please enter a valid email / Введите корректный email');
         return;
     }
-    const subject = encodeURIComponent('Mail AI Assistant — add me as tester');
-    const body = encodeURIComponent('Please add this email as a test user: ' + email);
-    window.location.href = `mailto:miromarg7@gmail.com?subject=${subject}&body=${body}`;
+
+    state.betaSubmitStatus = 'sending';
+    render();
+
+    try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                access_key: WEB3FORMS_ACCESS_KEY,
+                subject: 'Mail AI Assistant — заявка на бета-доступ',
+                email: email,
+                message: `Прошу добавить этот email в тестировщики Google OAuth: ${email}`
+            })
+        });
+        const data = await response.json();
+        state.betaSubmitStatus = data.success ? 'success' : 'error';
+    } catch (error) {
+        console.error('Beta signup error:', error);
+        state.betaSubmitStatus = 'error';
+    }
+
+    render();
 }
 
 function alreadySentGoToLogin() {
@@ -1392,24 +1428,45 @@ if (state.showAutoResponderModal) {
 // Модальное окно бета-доступа (сбор email перед добавлением в тестировщики)
 if (state.showBetaModal) {
     const betaModal = document.createElement('div');
+
+    let formContent;
+    if (state.betaSubmitStatus === 'success') {
+        formContent = `
+            <div class="text-center py-2">
+                <div class="text-4xl mb-3">✅</div>
+                <p class="text-gray-700 font-semibold mb-2">${t('betaSuccessTitle')}</p>
+                <p class="text-xs text-gray-400">${t('betaWaitNote')}</p>
+            </div>
+        `;
+    } else {
+        const sending = state.betaSubmitStatus === 'sending';
+        formContent = `
+            <input
+                id="betaEmailInput"
+                type="email"
+                placeholder="${t('betaEmailPlaceholder')}"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 text-gray-700"
+                ${sending ? 'disabled' : ''}
+            />
+            ${state.betaSubmitStatus === 'error' ? `<p class="text-xs text-red-500 mb-2">${t('betaErrorNote')}</p>` : ''}
+            <p class="text-xs text-gray-400 mb-4">${t('betaWaitNote')}</p>
+            <button
+                onclick="submitBetaEmail()"
+                ${sending ? 'disabled' : ''}
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition mb-4"
+                style="${sending ? 'opacity:0.6;cursor:not-allowed;' : ''}"
+            >
+                ${sending ? t('betaSendingBtn') : t('betaSubmitBtn')}
+            </button>
+        `;
+    }
+
     betaModal.innerHTML = `
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
             <div class="bg-white rounded-xl shadow-2xl p-6 w-[450px] max-w-[90vw]">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">${t('betaModalTitle')}</h2>
                 <p class="text-gray-600 mb-4 text-sm">${t('betaModalDesc')}</p>
-                <input
-                    id="betaEmailInput"
-                    type="email"
-                    placeholder="${t('betaEmailPlaceholder')}"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-2 text-gray-700"
-                />
-                <p class="text-xs text-gray-400 mb-4">${t('betaWaitNote')}</p>
-                <button
-                    onclick="submitBetaEmail()"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition mb-4"
-                >
-                    ${t('betaSubmitBtn')}
-                </button>
+                ${formContent}
                 <div class="text-center border-t border-gray-100 pt-4">
                     <p class="text-xs text-gray-400 mb-2">${t('alreadySentQuestion')}</p>
                     <button
